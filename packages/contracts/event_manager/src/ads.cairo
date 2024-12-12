@@ -51,8 +51,7 @@ mod ads {
         fn get_ad_info(self: @ContractState, ad_id: AdId) -> Option<AdInfo> {
             self.ads.read(ad_id)
         }
-        // TODO: revisit how to create the ID.
-        // TODO: revisit snapshots...
+
         fn publish_ad(ref self: ContractState, ad_info: AdInfo) {
             let apartment_info = @ad_info.apartment;
             assert!(
@@ -85,10 +84,10 @@ mod ads {
                 Option::None => { return bool::False; },
                 Option::Some(ad_info) => { ad_info },
             };
-            let apartment_info = ad_info.apartment;
+            let apartment_info = @ad_info.apartment;
             let caller_address = get_caller_address();
             assert!(
-                apartment_info.owner == caller_address || self.ownable.owner() == caller_address,
+                apartment_info.owner == @caller_address || self.ownable.owner() == caller_address,
                 "Only the owner of the apartment can remove an ad of it",
             );
             entry.write(Option::None);

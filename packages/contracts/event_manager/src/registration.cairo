@@ -24,6 +24,7 @@ mod registration {
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
     const ETH_ADDRESS: felt252 = 0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7;
+    const DAY_IN_SECONDS: u64 = 60 * 60 * 24;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
@@ -67,7 +68,6 @@ mod registration {
     // should be part of the contract's ABI.
     #[abi(embed_v0)]
     impl RegistrationImpl of IRegistration<ContractState> {
-        // TODO(ilya): add ownership checks
         fn register_apartment(
             ref self: ContractState, id: ApartmentId, apartment_info: ApartmentInfo,
         ) {
@@ -131,9 +131,8 @@ mod registration {
                     let buyer = get_caller_address();
                     let seller = self.get_info(apartment_id).owner;
                     assert!(sale_info.price == price, "ads");
-                    // TODO: Check if timestamp is correct. Should be 24 hours.
                     assert!(
-                        get_block_timestamp() - sale_info.timestamp < 60 * 60 * 24,
+                        get_block_timestamp() - sale_info.timestamp < DAY_IN_SECONDS,
                         "Offer is expired."
                     );
 
