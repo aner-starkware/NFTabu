@@ -11,9 +11,8 @@ struct OfferInfo {
 mod registration {
     use openzeppelin_access::ownable::OwnableComponent;
     use starknet::storage::{
-        Map, Vec, StorageAsPointer, StoragePathEntry, StorageMapReadAccess,
-        StoragePointerWriteAccess, StoragePointerReadAccess, StorageMapWriteAccess, VecTrait,
-        MutableVecTrait,
+        Map, StoragePathEntry, StorageMapReadAccess, StoragePointerWriteAccess,
+        StoragePointerReadAccess,
     };
     use starknet::{
         ContractAddress, contract_address_const, get_caller_address, get_block_timestamp

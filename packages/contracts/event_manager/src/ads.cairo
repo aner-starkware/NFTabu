@@ -3,14 +3,12 @@ mod ads {
     use crate::ads_interface::IAds;
     use crate::utils::ad::{AdInfo, AdId};
     use starknet::storage::{
-        Map, Vec, StorageAsPointer, StoragePathEntry, StorageMapReadAccess,
-        StoragePointerWriteAccess, StoragePointerReadAccess, StorageMapWriteAccess, VecTrait,
-        MutableVecTrait,
+        Map, StoragePathEntry, StorageMapReadAccess, StoragePointerWriteAccess,
+        StoragePointerReadAccess, StorageMapWriteAccess,
     };
     use starknet::{ContractAddress, get_caller_address};
     use crate::registration_interface::{IRegistrationDispatcher, IRegistrationDispatcherTrait};
     use crate::utils::apartment::{ApartmentInfo, ApartmentId};
-    use starknet::contract_address::contract_address_const;
     use openzeppelin_access::ownable::OwnableComponent;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -36,14 +34,12 @@ mod ads {
         OwnableEvent: OwnableComponent::Event,
     }
 
-
     #[constructor]
     fn constructor(
         ref self: ContractState, owner: ContractAddress, registration_contract_addr: ContractAddress
     ) {
         self.ownable.initializer(owner);
         self.registration_contract_addr.write(registration_contract_addr);
-        // self.dummy_ads();
     }
 
     #[abi(embed_v0)]
@@ -164,7 +160,6 @@ mod ads {
     ) -> ContractAddress {
         get_apartment_info(apartment_id, contract_address).owner
     }
-
 
     #[generate_trait]
     impl PrivateImpl of PrivateTrait {
