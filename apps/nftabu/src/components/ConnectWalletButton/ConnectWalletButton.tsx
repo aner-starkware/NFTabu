@@ -36,14 +36,14 @@ export const ConnectWalletButton = ({
     setOpen(!open);
   };
 
-  const onConnectWallet = () => {
+  const publish = () => {
     setOpen(true);
     onConnect?.();
   };
 
   return (
     <>
-      <Button onClick={onConnectWallet}>
+      <Button onClick={publish}>
         <WalletIcon className="mr-2 h-4 w-4" />
         Connect Wallet
       </Button>

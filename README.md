@@ -133,27 +133,6 @@ export const SomeComponent = () => {
 import React from 'react';
 import { useAccount, useReadContract } from "@starknet-react/core";
 import { ABI, CONTRACT_ADDRESS } from "@/utils/consts";
-
-export const SomeComponent = () => {
-  const {address, isConnecting} = useAccount();
-  const {data: isAdmin, refetch: getIsAdmin, isFetching} = useReadContract({ 
-    functionName: 'is_admin', 
-    enabled: false, // the default is true - if not set to false the api call will happen immediately
-    abi: ABI,
-    address: CONTRACT_ADDRESS,
-    args: [address] // arguments to the contract's is_admin method
-  });
-
-  useEffect(() => {
-    getIsAdmin(); // Fetch The data whenever you want - or remove the "enabled: false" and make the api call run immediately.
-  }, [])
-
-  if (isFetching) {
-    return <div>Fetching Data...</div>
-  }
-
-  return isAdmin ? <div>I am an admin</div> : <div>I am not an admin</div>;
-};
 ```
 
 4. **`Write To Contract` with `useContract` and `useSendTransaction`**

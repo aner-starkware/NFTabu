@@ -3,29 +3,38 @@
 export const SrcPrefix =
   import.meta.env.MODE === 'production' ? '/nftabu-app' : '';
 
-import { Abi } from '@starknet-react/core';
-
-
 /// The address of the deployed contract.
 export const CONTRACT_ADDRESS =
-  '0x049c75609bb077a9427bc26a9935472ec75e5508ed216ef7f7ad2693397deebc';
+  '0x0530c99415b21ae246412f10c6e24ba8b26e6b567ce97e9366bd052e009337bb';
 /// The ABI of the deployed contract. Can be found on starkscan.
 /// For the above contract, the ABI can be found at:
 /// https://sepolia.starkscan.co/contract/0x049c75609bb077a9427bc26a9935472ec75e5508ed216ef7f7ad2693397deebc
 /// And the ABI is accessible under the 'Class Code/History' tab -> 'Copy ABI Code' button.
 export const ABI = [
   {
-    "name": "RegistrationImpl",
+    "name": "AdsImpl",
     "type": "impl",
-    "interface_name": "event_manager::event_manager::IRegistration"
+    "interface_name": "event_manager::ads_interface::IAds"
   },
   {
-    "name": "event_manager::utils::time::Time",
+    "name": "event_manager::utils::apartment::ApartmentInfo",
     "type": "struct",
     "members": [
       {
-        "name": "seconds",
-        "type": "core::integer::u64"
+        "name": "owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "address",
+        "type": "(core::felt252, core::felt252, core::felt252)"
+      },
+      {
+        "name": "area",
+        "type": "core::felt252"
+      },
+      {
+        "name": "floor",
+        "type": "core::felt252"
       }
     ]
   },
@@ -44,298 +53,226 @@ export const ABI = [
     ]
   },
   {
-    "name": "event_manager::event_manager::EventUserInfoInner",
+    "name": "core::byte_array::ByteArray",
     "type": "struct",
     "members": [
       {
-        "name": "time",
-        "type": "event_manager::utils::time::Time"
+        "name": "data",
+        "type": "core::array::Array::<core::bytes_31::bytes31>"
       },
       {
-        "name": "registered",
-        "type": "core::bool"
+        "name": "pending_word",
+        "type": "core::felt252"
       },
       {
-        "name": "canceled",
-        "type": "core::bool"
-      }
-    ]
-  },
-  {
-    "name": "event_manager::event_manager::EventUserInfo",
-    "type": "struct",
-    "members": [
-      {
-        "name": "id",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "info",
-        "type": "event_manager::event_manager::EventUserInfoInner"
-      }
-    ]
-  },
-  {
-    "name": "event_manager::event_manager::UserParticipation",
-    "type": "struct",
-    "members": [
-      {
-        "name": "user",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "name": "n_participations",
+        "name": "pending_word_len",
         "type": "core::integer::u32"
       }
     ]
   },
   {
-    "name": "event_manager::event_manager::EventInfoInner",
+    "name": "event_manager::utils::ad::AdInfo",
     "type": "struct",
     "members": [
       {
-        "name": "time",
-        "type": "event_manager::utils::time::Time"
+        "name": "apartment_id",
+        "type": "core::integer::u128"
       },
       {
-        "name": "number_of_participants",
-        "type": "core::integer::u32"
+        "name": "apartment",
+        "type": "event_manager::utils::apartment::ApartmentInfo"
       },
       {
-        "name": "canceled",
+        "name": "is_sale",
         "type": "core::bool"
       },
       {
-        "name": "locked",
-        "type": "core::bool"
+        "name": "price",
+        "type": "core::felt252"
+      },
+      {
+        "name": "publication_date",
+        "type": "core::felt252"
+      },
+      {
+        "name": "entry_date",
+        "type": "core::felt252"
       },
       {
         "name": "description",
-        "type": "core::felt252"
-      }
-    ]
-  },
-  {
-    "name": "event_manager::event_manager::EventInfo",
-    "type": "struct",
-    "members": [
-      {
-        "name": "id",
-        "type": "core::integer::u32"
+        "type": "core::byte_array::ByteArray"
       },
       {
-        "name": "info",
-        "type": "event_manager::event_manager::EventInfoInner"
+        "name": "picture_url",
+        "type": "core::byte_array::ByteArray"
       }
     ]
   },
   {
-    "name": "core::array::Span::<core::starknet::contract_address::ContractAddress>",
+    "name": "core::option::Option::<event_manager::utils::ad::AdInfo>",
+    "type": "enum",
+    "variants": [
+      {
+        "name": "Some",
+        "type": "event_manager::utils::ad::AdInfo"
+      },
+      {
+        "name": "None",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "name": "core::array::Span::<(core::integer::u128, event_manager::utils::ad::AdInfo)>",
     "type": "struct",
     "members": [
       {
         "name": "snapshot",
-        "type": "@core::array::Array::<core::starknet::contract_address::ContractAddress>"
+        "type": "@core::array::Array::<(core::integer::u128, event_manager::utils::ad::AdInfo)>"
       }
     ]
   },
   {
-    "name": "event_manager::event_manager::IRegistration",
+    "name": "event_manager::ads_interface::IAds",
     "type": "interface",
     "items": [
       {
-        "name": "get_user_events_by_time",
+        "name": "get_ad_info",
         "type": "function",
         "inputs": [
           {
-            "name": "user",
-            "type": "core::starknet::contract_address::ContractAddress"
-          },
-          {
-            "name": "start",
-            "type": "event_manager::utils::time::Time"
-          },
-          {
-            "name": "end",
-            "type": "event_manager::utils::time::Time"
+            "name": "ad_id",
+            "type": "core::integer::u128"
           }
         ],
         "outputs": [
           {
-            "type": "core::array::Array::<event_manager::event_manager::EventUserInfo>"
+            "type": "core::option::Option::<event_manager::utils::ad::AdInfo>"
           }
         ],
         "state_mutability": "view"
       },
       {
-        "name": "n_events",
+        "name": "publish_ad",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "ad_info",
+            "type": "event_manager::utils::ad::AdInfo"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "remove_ad",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "ad_id",
+            "type": "core::integer::u128"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::bool"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "get_next_id",
         "type": "function",
         "inputs": [],
         "outputs": [
           {
-            "type": "core::integer::u32"
+            "type": "core::integer::u128"
           }
         ],
         "state_mutability": "view"
       },
       {
-        "name": "get_participation_report_by_time",
+        "name": "dummy_ads",
+        "type": "function",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "offer_sale",
         "type": "function",
         "inputs": [
           {
-            "name": "start",
-            "type": "event_manager::utils::time::Time"
+            "name": "apartment_id",
+            "type": "core::integer::u128"
           },
           {
-            "name": "end",
-            "type": "event_manager::utils::time::Time"
+            "name": "buyer",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "price",
+            "type": "core::integer::u128"
           }
         ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "buy",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "apartment_id",
+            "type": "core::integer::u128"
+          },
+          {
+            "name": "price",
+            "type": "core::integer::u128"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "get_all_ads",
+        "type": "function",
+        "inputs": [],
         "outputs": [
           {
-            "type": "core::array::Array::<event_manager::event_manager::UserParticipation>"
+            "type": "core::array::Span::<(core::integer::u128, event_manager::utils::ad::AdInfo)>"
           }
         ],
         "state_mutability": "view"
-      },
+      }
+    ]
+  },
+  {
+    "name": "OwnableImpl",
+    "type": "impl",
+    "interface_name": "openzeppelin_access::ownable::interface::IOwnable"
+  },
+  {
+    "name": "openzeppelin_access::ownable::interface::IOwnable",
+    "type": "interface",
+    "items": [
       {
-        "name": "event_info",
+        "name": "owner",
         "type": "function",
-        "inputs": [
-          {
-            "name": "event_id",
-            "type": "core::integer::u32"
-          }
-        ],
+        "inputs": [],
         "outputs": [
           {
-            "type": "event_manager::event_manager::EventInfoInner"
+            "type": "core::starknet::contract_address::ContractAddress"
           }
         ],
         "state_mutability": "view"
       },
       {
-        "name": "get_events_infos_by_time",
+        "name": "transfer_ownership",
         "type": "function",
         "inputs": [
           {
-            "name": "start",
-            "type": "event_manager::utils::time::Time"
-          },
-          {
-            "name": "end",
-            "type": "event_manager::utils::time::Time"
-          }
-        ],
-        "outputs": [
-          {
-            "type": "core::array::Array::<event_manager::event_manager::EventInfo>"
-          }
-        ],
-        "state_mutability": "view"
-      },
-      {
-        "name": "register",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "event_id",
-            "type": "core::integer::u32"
-          }
-        ],
-        "outputs": [],
-        "state_mutability": "external"
-      },
-      {
-        "name": "unregister",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "event_id",
-            "type": "core::integer::u32"
-          }
-        ],
-        "outputs": [],
-        "state_mutability": "external"
-      },
-      {
-        "name": "add_event",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "time",
-            "type": "core::felt252"
-          },
-          {
-            "name": "description",
-            "type": "core::felt252"
-          }
-        ],
-        "outputs": [],
-        "state_mutability": "external"
-      },
-      {
-        "name": "modify_event_time",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "event_id",
-            "type": "core::integer::u32"
-          },
-          {
-            "name": "time",
-            "type": "core::felt252"
-          }
-        ],
-        "outputs": [],
-        "state_mutability": "external"
-      },
-      {
-        "name": "lock_event",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "event_id",
-            "type": "core::integer::u32"
-          }
-        ],
-        "outputs": [],
-        "state_mutability": "external"
-      },
-      {
-        "name": "unlock_event",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "event_id",
-            "type": "core::integer::u32"
-          }
-        ],
-        "outputs": [],
-        "state_mutability": "external"
-      },
-      {
-        "name": "set_event_canceled",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "event_id",
-            "type": "core::integer::u32"
-          },
-          {
-            "name": "canceled",
-            "type": "core::bool"
-          }
-        ],
-        "outputs": [],
-        "state_mutability": "external"
-      },
-      {
-        "name": "add_allowed_user",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "user",
+            "name": "new_owner",
             "type": "core::starknet::contract_address::ContractAddress"
           }
         ],
@@ -343,70 +280,9 @@ export const ABI = [
         "state_mutability": "external"
       },
       {
-        "name": "remove_allowed_user",
+        "name": "renounce_ownership",
         "type": "function",
-        "inputs": [
-          {
-            "name": "user",
-            "type": "core::starknet::contract_address::ContractAddress"
-          }
-        ],
-        "outputs": [],
-        "state_mutability": "external"
-      },
-      {
-        "name": "add_allowed_users",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "users",
-            "type": "core::array::Span::<core::starknet::contract_address::ContractAddress>"
-          }
-        ],
-        "outputs": [],
-        "state_mutability": "external"
-      },
-      {
-        "name": "is_allowed_user",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "user",
-            "type": "core::starknet::contract_address::ContractAddress"
-          }
-        ],
-        "outputs": [
-          {
-            "type": "core::bool"
-          }
-        ],
-        "state_mutability": "view"
-      },
-      {
-        "name": "is_admin",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "user",
-            "type": "core::starknet::contract_address::ContractAddress"
-          }
-        ],
-        "outputs": [
-          {
-            "type": "core::bool"
-          }
-        ],
-        "state_mutability": "view"
-      },
-      {
-        "name": "add_admin",
-        "type": "function",
-        "inputs": [
-          {
-            "name": "user",
-            "type": "core::starknet::contract_address::ContractAddress"
-          }
-        ],
+        "inputs": [],
         "outputs": [],
         "state_mutability": "external"
       }
@@ -417,108 +293,75 @@ export const ABI = [
     "type": "constructor",
     "inputs": [
       {
-        "name": "admin",
+        "name": "owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "registration_contract_addr",
         "type": "core::starknet::contract_address::ContractAddress"
       }
     ]
   },
   {
     "kind": "struct",
-    "name": "event_manager::event_manager::registration::UserRegistration",
+    "name": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
     "type": "event",
     "members": [
       {
         "kind": "key",
-        "name": "user",
+        "name": "previous_owner",
         "type": "core::starknet::contract_address::ContractAddress"
       },
       {
         "kind": "key",
-        "name": "event_id",
-        "type": "core::integer::u32"
-      },
-      {
-        "kind": "data",
-        "name": "status",
-        "type": "core::bool"
+        "name": "new_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
       }
     ]
   },
   {
     "kind": "struct",
-    "name": "event_manager::event_manager::registration::EventChanged",
+    "name": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
     "type": "event",
     "members": [
       {
-        "kind": "data",
-        "name": "event_id",
-        "type": "core::integer::u32"
-      },
-      {
-        "kind": "data",
-        "name": "time",
-        "type": "event_manager::utils::time::Time"
-      }
-    ]
-  },
-  {
-    "kind": "struct",
-    "name": "event_manager::event_manager::registration::EventCancellation",
-    "type": "event",
-    "members": [
-      {
-        "kind": "data",
-        "name": "event_id",
-        "type": "core::integer::u32"
-      },
-      {
-        "kind": "data",
-        "name": "canceled",
-        "type": "core::bool"
-      }
-    ]
-  },
-  {
-    "kind": "struct",
-    "name": "event_manager::event_manager::registration::UserAllowed",
-    "type": "event",
-    "members": [
-      {
-        "kind": "data",
-        "name": "user",
+        "kind": "key",
+        "name": "previous_owner",
         "type": "core::starknet::contract_address::ContractAddress"
       },
       {
-        "kind": "data",
-        "name": "allowed",
-        "type": "core::bool"
+        "kind": "key",
+        "name": "new_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
       }
     ]
   },
   {
     "kind": "enum",
-    "name": "event_manager::event_manager::registration::Event",
+    "name": "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
     "type": "event",
     "variants": [
       {
         "kind": "nested",
-        "name": "UserRegistration",
-        "type": "event_manager::event_manager::registration::UserRegistration"
+        "name": "OwnershipTransferred",
+        "type": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred"
       },
       {
         "kind": "nested",
-        "name": "EventChanged",
-        "type": "event_manager::event_manager::registration::EventChanged"
-      },
+        "name": "OwnershipTransferStarted",
+        "type": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "event_manager::ads::ads::Event",
+    "type": "event",
+    "variants": [
       {
-        "kind": "nested",
-        "name": "EventCancellation",
-        "type": "event_manager::event_manager::registration::EventCancellation"
-      },
-      {
-        "kind": "nested",
-        "name": "UserAllowed",
-        "type": "event_manager::event_manager::registration::UserAllowed"
+        "kind": "flat",
+        "name": "OwnableEvent",
+        "type": "openzeppelin_access::ownable::ownable::OwnableComponent::Event"
       }
     ]
   }

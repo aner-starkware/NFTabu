@@ -9,7 +9,7 @@ pub struct Time {
     /// The number of seconds since 1970-01-01 00:00:00 UTC.
     seconds: u64,
 }
-/// Common time-related operations.
+/// Common publication_date-related operations.
 // TODO: Complete the TimeTrait implementation. As for now it just contains the minimum required to
 // make the contract work.
 #[generate_trait]

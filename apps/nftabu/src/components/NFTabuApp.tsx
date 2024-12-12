@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Header } from './Header/Header';
 import { useAccount } from '@starknet-react/core';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Calendar, PieChart, Users } from 'lucide-react';
 import { AppTabs } from '../types/ui';
-import { UpcomingAdsTab } from './UpcomingAdsTab/UpcomingAdsTab';
-import { StatsTab } from './StatsTab/StatsTab';
 import { PublishNewAdTab } from './PublishNewAdTab/PublishNewAdTab';
 import { MyAdsTab } from './MyAdsTab/MyAdsTab';
+import { AdsTab } from './AdsTab/AdsTab';
 import { useAdData } from '../hooks/useAdData';
+import { ABI, CONTRACT_ADDRESS } from '@/utils/consts';
+import { addListener } from 'process';
+import { useContract, useSendTransaction } from '@starknet-react/core';
+import { TypedContractV2 } from 'starknet';
+import { Ad } from '@/types/ad';
 
 
 /// A function to create the main NFTabuApp component.
@@ -19,14 +22,9 @@ export const NFTabuApp = () => {
   /// We can also update the activeTab value by calling the setActiveTab function. This will cause the component to re-render.
   const [activeTab, setActiveTab] = useState<string>(AppTabs.ADS_FOR_SALE);
   const {
-    pastAds,
-    futureAds,
-    isAllowedUser,
-    foodieRank,
-    allTimeAdCount,
+    saleAds,
+    rentAds,
     loadingAllEvents,
-    isSuccessFetchingUserEvents,
-    updateAd,
     setSuccessFetchingUserEvents,
   } = useAdData();
 
@@ -34,6 +32,28 @@ export const NFTabuApp = () => {
     setSuccessFetchingUserEvents(false);
   };
 
+  const publish = async () => {
+    setSuccessFetchingUserEvents(false);
+  };
+
+  const remove = async () => {
+    setSuccessFetchingUserEvents(false);
+  };
+
+  // const { contract } = useContract({
+  //   abi: ABI,
+  //   address: CONTRACT_ADDRESS,
+  // }) as { contract?: TypedContractV2<typeof ABI> };
+  
+  // const calls = useMemo(() => {
+  //   if (!contract) return undefined;
+  //   return [contract.populate('publish_ad', [ad0.info])];
+  // }, [ad0.info, contract]);
+  
+  // const { sendAsync } = useSendTransaction({
+  //   calls,
+  // });
+    
   return (
     <div className="min-h-screen w-screen bg-gray-100">
       <Header wallet={starknetWallet} onConnectWallet={onConnectWallet} />
@@ -59,6 +79,7 @@ export const NFTabuApp = () => {
               value={AppTabs.PUBLISH_AD}
             >
               Publish Ad
+              {/* <button onClick={() => sendAsync()}>Publish Ad</button> */}
             </TabsTrigger>
             <TabsTrigger
               disabled={!starknetWallet.isConnected}
@@ -68,25 +89,19 @@ export const NFTabuApp = () => {
             </TabsTrigger>
           </TabsList>
           <TabsContent value={AppTabs.ADS_FOR_SALE} className="space-y-12">
-            <UpcomingAdsTab
-              updateAd={updateAd}
+            <AdsTab
+              remove={remove}
               loadingAllEvents={loadingAllEvents}
-              isSuccessFetchingUserEvents={isSuccessFetchingUserEvents}
-              isAllowedUser={isAllowedUser}
-              futureAds={futureAds}
-              pastAds={pastAds}
-              address={starknetWallet?.address}
-              onConnectWallet={onConnectWallet}
-              isWalletConnected={starknetWallet.isConnected ?? false}
+              ads={saleAds}
+              publish={publish}
             />
           </TabsContent>
           <TabsContent value={AppTabs.ADS_FOR_RENT} className="space-y-12">
-            <StatsTab
-              foodieRank={foodieRank}
-              allTimeAdCount={allTimeAdCount}
-              setActiveTab={setActiveTab}
-              updateAd={updateAd}
-              ads={pastAds}
+            <AdsTab
+              remove={remove}
+              loadingAllEvents={loadingAllEvents}
+              ads={rentAds}
+              publish={publish}
             />
           </TabsContent>
           <TabsContent value={AppTabs.PUBLISH_AD} className="space-y-12">
@@ -96,17 +111,16 @@ export const NFTabuApp = () => {
               // isWalletConnected={starknetWallet.isConnected ?? false}
             />
           </TabsContent>
-          <TabsContent value={AppTabs.MY_ADS} className="space-y-12">
-            <MyAdsTab
-              foodieRank={foodieRank}
-              allTimeAdCount={allTimeAdCount}
-              setActiveTab={setActiveTab}
-              updateAd={updateAd}
-              ads={pastAds}
-              // onConnectWallet={onConnectWallet}
-              // isWalletConnected={starknetWallet.isConnected ?? false}
-            />
+          <TabsContent
+            value={AppTabs.ADS_FOR_RENT}
+            className="space-y-12"
+          >
           </TabsContent>
+          {/* {isAdmin ? (
+            <TabsContent value={AppTabs.MANAGEMENT} className="space-y-12">
+              <ManagementTab />
+            </TabsContent>
+          ) : null} */}
         </Tabs>
       </main>
     </div>

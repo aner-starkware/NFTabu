@@ -47,8 +47,8 @@ export const adCountByDay = (ads: Ad[]): { [key: string]: number } => {
     Saturday: 0,
   };
 
-  ads.forEach(({ info: { time } }) => {
-    const date = new Date(Number(time.seconds) * 1000);
+  ads.forEach(({ info: { publication_date } }) => {
+    const date = new Date(Number(publication_date.seconds) * 1000);
     const dayOfWeek = date.toLocaleString('en-US', {
       weekday: 'long',
     }) as keyof typeof daysOfWeek;
@@ -110,12 +110,12 @@ export const groupAdsByMonth = (ads: Ad[]) => {
     new Date(thisYear, thisMonth, 1).getTime() - 365 * 24 * 60 * 60 * 1000;
   const lastYearAds = ads.filter(
     ad =>
-      Number(ad.info.time.seconds) * 1000 >= oneYearAgo &&
-      Number(ad.info.time.seconds) * 1000 < now.getTime(),
+      Number(ad.info.publication_date.seconds) * 1000 >= oneYearAgo &&
+      Number(ad.info.publication_date.seconds) * 1000 < now.getTime(),
   );
 
   lastYearAds.forEach(ad => {
-    const date = new Date(Number(ad.info.time.seconds) * 1000);
+    const date = new Date(Number(ad.info.publication_date.seconds) * 1000);
     const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
     if (result[yearMonth]) {
       result[yearMonth].push(ad);

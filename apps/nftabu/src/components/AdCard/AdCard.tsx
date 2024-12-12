@@ -1,4 +1,5 @@
-import { Button } from '../ui/button';
+import { Coins, House, Ruler } from 'lucide-react';
+
 import {
   Card,
   CardContent,
@@ -6,53 +7,15 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card';
-import { AlertCircle, Check, Users, UtensilsCrossed, X } from 'lucide-react';
-import { Badge } from '../ui/badge';
 import { Ad } from '../../types/ad';
-import { openFullscreenLoader } from '../FullscreenLoaderModal/FullscreenLoaderModal';
-import { shortString } from "starknet";
-import { ABI, CONTRACT_ADDRESS } from '../../utils/consts';
-import { useContract, useSendTransaction } from '@starknet-react/core';
-import { useMemo } from 'react';
-import { TypedContractV2 } from 'starknet';
-import { ConnectWalletButton } from '../ConnectWalletButton/ConnectWalletButton';
 
 export const AdCard = ({
+  id,
   ad,
-  onConnectWallet,
-  updateAd,
-  isSuccessFetchingUserEvents = false,
-  isPastAd = false,
-  isWalletConnected = false,
-  isAllowedUser = false,
-  isNextAd = false,
 }: {
+  id: number;
   ad: Ad;
-  isPastAd?: boolean;
-  isWalletConnected?: boolean;
-  isSuccessFetchingUserEvents?: boolean;
-  onConnectWallet?: () => void;
-  updateAd?: (adId: string) => void;
-  isAllowedUser?: boolean;
-  isNextAd?: boolean;
 }) => {
-  const { contract } = useContract({
-    abi: ABI,
-    address: CONTRACT_ADDRESS,
-  }) as { contract?: TypedContractV2<typeof ABI> };
-
-  const calls = useMemo(() => {
-    if (!contract) return undefined;
-    if (ad.info.registered) {
-      return [contract.populate('unregister', [ad.id])];
-    } else if (isAllowedUser) {
-      return [contract.populate('register', [ad.id])];
-    }
-  }, [ad.info.registered, contract, isAllowedUser]);
-
-  const { sendAsync } = useSendTransaction({
-    calls,
-  });
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
@@ -62,87 +25,90 @@ export const AdCard = ({
     });
   };
 
-  const handleRegistration = async () => {
-    let closeFullscreenLoader;
-    try {
-      closeFullscreenLoader = openFullscreenLoader(
-        'Registering you to the selected ad...',
-      );
-      const { transaction_hash } = await sendAsync();
-      await contract?.providerOrAccount?.waitForTransaction(transaction_hash, {
-        retryInterval: 2e3,
-      });
-      updateAd?.(ad.id);
-    } catch (e) {
-      console.error('Error: ad status update failed', e);
-    } finally {
-      closeFullscreenLoader?.();
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex justify-between items-center min-h-[30px]">
-          {isNextAd ? 'Next Ad' : isPastAd ? 'Ad Ended' : 'Future Ad'}
-          {ad.info.registered ? (
-            <Badge variant="secondary" className="ml-2">
-              Registered
-            </Badge>
-          ) : null}
+          {'Ad'} {Number(ad.id)} ({formatDate(new Date(Number(ad.info.publication_date.seconds) * 1000))})
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-semibold">
-          {formatDate(new Date(Number(ad.info.time.seconds) * 1000))}
-        </p>
-        {ad?.info?.number_of_participants !== undefined ? (
-          <p className="text-sm text-gray-500 mt-2">
-            <Users className="inline-block mr-1 h-4 w-4" />
-            {Number(ad.info.number_of_participants)} registered
-          </p>
-        ) : null}
-        <p className="text-sm text-gray-700 mt-2">
-          <UtensilsCrossed className="inline-block mr-1 h-4 w-4" />
-          Catering:{' '}
-          {shortString.decodeShortString(ad.info?.description ?? '') ?? 'Not Set Yet'}
-        </p>
-        {isWalletConnected &&
-        !isAllowedUser &&
-        isSuccessFetchingUserEvents &&
-        !ad.info.registered ? (
-          <div className="flex items-center mt-2 text-red-500">
-            <AlertCircle className="w-4 h-4 mr-2" />
-            <span className="text-sm">
-              You're not allowed to register to ads, yet!
-            </span>
+        {ad?.info?.apt?.info?.address !== undefined ? (
+          <div style={{display: "flex", justifyContent: "left"}}>
+            <House className="mr-2 h-4 w-4"/> 
+            <p className="text-sm font-semibold">
+              {Number(ad.info.apt.info.address.number)} {ad.info.apt.info.address.street}, {ad.info.apt.info.address.town}
+            </p>
           </div>
-        ) : null}
+        ) : 
+          <div style={{display: "flex", justifyContent: "left"}}>
+            <House className="mr-2 h-4 w-4"/> 
+            <p className="text-sm font-semibold">
+            32 Hamelacha, Natanya
+            </p>
+          </div>
+        }
+        {ad?.info?.apt?.info?.area !== undefined ? (
+          <div style={{display: "flex", justifyContent: "left"}}>
+            <Ruler className="mr-2 h-4 w-4"/> 
+            <p className="text-sm">
+              {Number(ad.info.apt.info.area)} m²
+            </p>
+          </div>
+        ) : 
+          <div style={{display: "flex", justifyContent: "left"}}>
+            <Ruler className="mr-2 h-4 w-4"/> 
+            <p className="text-sm">
+              500 m²
+            </p>
+          </div>
+        }
+        {ad?.info?.price !== undefined ? (
+          <div style={{display: "flex", justifyContent: "left"}}>
+            <Coins className="mr-2 h-4 w-4"/> 
+              <p className="text-sm">
+                {Number(ad.info.price)} NIS
+              </p>
+          </div>
+        ) : 
+          <div style={{display: "flex", justifyContent: "left"}}>
+            <Coins className="mr-2 h-4 w-4"/> <p className="text-sm"> - </p>
+          </div>
+        }
+        {ad?.info?.apt?.info?.floor !== undefined ? (
+          <p className="text-sm">
+            Floor: {Number(ad.info.apt.info.floor)}
+          </p>
+        ) : 
+          <p className="text-sm">
+            Floor: 2
+          </p>
+        }
+        {/* {ad?.info?.entry_date !== undefined ? (
+          <p className="text-sm">
+            Entry date: {formatDate(new Date(Number(ad.info.entry_date.seconds) * 1000))}
+          </p>
+        ) : 
+          <p className="text-sm">
+            Entry date: -
+          </p>
+        } */}
+        {ad?.info?.description !== undefined && ad?.info?.description.length > 0 ? (
+          <p className="text-sm">
+            Description: {ad.info.description} 
+          </p>
+        ) : 
+          <p className="text-sm">
+            Description: -
+          </p>
+        }
+        {ad?.info?.picture_url !== undefined && ad?.info?.picture_url.length > 0 ? (
+        <div style={{display: "flex", justifyContent: "center"}}>
+          <img src={ad.info.picture_url} width={200} height={200} alt="image not found"/>
+        </div>
+        ): [] }
       </CardContent>
       <CardFooter>
-        {isWalletConnected ? (
-          <Button
-            className={`w-full ${ad.info.registered ? 'text-red-500 border-red-500 bg-red-50 hover:text-red-500 hover:border-red-500 hover:bg-red-100' : ''}`}
-            onClick={handleRegistration}
-            disabled={
-              isWalletConnected && !isAllowedUser && !ad.info.registered
-            }
-          >
-            {ad.info.registered ? (
-              <>
-                <X className="mr-2 h-4 w-4" />
-                Unregister
-              </>
-            ) : (
-              <>
-                <Check className="mr-2 h-4 w-4" />
-                Register
-              </>
-            )}
-          </Button>
-        ) : (
-          <ConnectWalletButton onConnect={onConnectWallet} />
-        )}
       </CardFooter>
     </Card>
   );
