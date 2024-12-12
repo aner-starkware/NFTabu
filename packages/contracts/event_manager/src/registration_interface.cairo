@@ -14,6 +14,5 @@ pub trait IRegistration<ContractState> {
     );
 
     // TODO: consider adding seller to verify it.
-    // TODO: add allowance to allow the TABU to pass the money from the buyer to the seller.
     fn buy(ref self: ContractState, apartment_id: ApartmentId, price: u128);
 }
